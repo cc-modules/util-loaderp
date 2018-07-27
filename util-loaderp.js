@@ -45,4 +45,9 @@ if (cc && cc.loader) {
     const promises = paramArray.map(args => cc.loaderp.loadRes.apply(cc.loaderp, args));
     return Promise.all(promises);
   };
+
+  loaderp.loadAll = function (paramArray) {
+    const promises = paramArray.map(args => cc.loaderp.load.apply(cc.loaderp, args));
+    return Promise.all(promises);
+  }
 }
