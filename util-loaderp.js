@@ -49,5 +49,42 @@ if (cc && cc.loader) {
   loaderp.loadAll = function (paramArray) {
     const promises = paramArray.map(args => cc.loaderp.load.apply(cc.loaderp, args));
     return Promise.all(promises);
+  };
+
+  /**
+   * Load sprite atalas from remote url
+   * @param  {String} url, url without extension
+   * @return {Promise}
+   */
+  loaderp.loadAtalas = function (url, imageExt = '.png', plistExt = '.plist') {
+    return this.loadAll([[`${url}${plistExt}`], [`${url}${imageExt}`]]).then(([plist, texture]) => {
+      if (!plist || !plist.frames) return;
+
+      // create sprite frames from plist and texture
+      const spriteFrames = {}
+      for (let name in plist.frames) {
+        let frame = plist.frames[name];
+        let rect = plistArrayToCcType(frame.frame, cc.Rect);
+        let offset = plistArrayToCcType(frame.offset, cc.Vec2);
+        let originalSize = plistArrayToCcType(frame.sourceSize, cc.size);
+
+        const spriteFrame = new cc.SpriteFrame();
+        spriteFrame.name = name;
+        spriteFrame.setTexture(texture, rect, frame.rotated, offset, originalSize);
+        spriteFrames[name] = spriteFrame;
+      }
+      return spriteFrames;
+    })
+  };
+
+  /**
+   * Convert {x,y}, {{x,y}, {width, height}} to cc types (cc.Rect, cc.size, cc.Vec2, etc.)
+   * @param  {String} plistArrayStr
+   * @param  {Function} ctor
+   * @return {Object}
+   */
+  const plistArrayToCcType = function plistArrayToCcType (plistArrayStr, ctor) {
+    const ary = plistArrayStr.replace(/[^0-9,]/g, '').split(',').map(x => parseInt(x, 10));
+    return new ctor(...ary);
   }
 }
