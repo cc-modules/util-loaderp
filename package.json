@@ -3,12 +3,6 @@
   "version": "1.0.0",
   "description": "Promisified cc.loader.load/loadRes",
   "main": "index.js",
-  "scripts": {
-  },
-  "repository": {
-    "type": "git",
-    "url": "ssh://git@code.vipkid.com.cn:3590/edu/cc-game/infra/util-loaderp.git"
-  },
   "author": "wangweihua@vipkid.com.cn",
   "license": "ISC"
 }
