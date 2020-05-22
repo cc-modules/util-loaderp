@@ -1,8 +1,5 @@
 {
   "name": "util-loaderp",
-  "version": "1.0.0",
-  "description": "Promisified cc.loader.load/loadRes",
-  "main": "index.js",
-  "author": "wangweihua@vipkid.com.cn",
-  "license": "ISC"
+  "version": "1.0.1",
+  "description": "A Promisified loader for CC"
 }

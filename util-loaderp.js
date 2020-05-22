@@ -41,13 +41,13 @@ if (cc && cc.loader) {
    *   this.json = json;
    * })
    */
-  loaderp.loadResAll = function (paramArray) {
-    const promises = paramArray.map(args => cc.loaderp.loadRes.apply(cc.loaderp, args));
+  loaderp.loadResAll = function (resources) {
+    const promises = resources.map(args => cc.loaderp.loadRes.apply(cc.loaderp, args));
     return Promise.all(promises);
   };
 
-  loaderp.loadAll = function (paramArray) {
-    const promises = paramArray.map(args => cc.loaderp.load.apply(cc.loaderp, args));
+  loaderp.loadAll = function (resources) {
+    const promises = resources.map(args => cc.loaderp.load.apply(cc.loaderp, args));
     return Promise.all(promises);
   };
 
@@ -56,7 +56,7 @@ if (cc && cc.loader) {
    * @param  {String} url, url without extension
    * @return {Promise}
    */
-  loaderp.loadAtalas = function (url, imageExt = '.png', plistExt = '.plist') {
+  loaderp.loadAtlas = function (url, imageExt = '.png', plistExt = '.plist') {
     return this.loadAll([[`${url}${plistExt}`], [`${url}${imageExt}`]]).then(([plist, texture]) => {
       if (!plist || !plist.frames) return;
 
@@ -64,17 +64,20 @@ if (cc && cc.loader) {
       const spriteFrames = {}
       for (let name in plist.frames) {
         let frame = plist.frames[name];
-        let rect = plistArrayToCcType(frame.frame, cc.Rect);
-        let offset = plistArrayToCcType(frame.offset, cc.Vec2);
-        let originalSize = plistArrayToCcType(frame.sourceSize, cc.size);
+        let rect = plistArrayToCcType(frame.frame || frame.textureRect, cc.Rect);
+        let offset = plistArrayToCcType(frame.offset || frame.spriteOffset, cc.Vec2);
+        let originalSize = plistArrayToCcType(frame.sourceSize || frame.spriteSourceSize, cc.size);
 
         const spriteFrame = new cc.SpriteFrame();
+        name = name.replace(imageExt, '');
         spriteFrame.name = name;
-        spriteFrame.setTexture(texture, rect, frame.rotated, offset, originalSize);
+        spriteFrame.setTexture(texture, rect, frame.rotated || frame.textureRotated, offset, originalSize);
         spriteFrames[name] = spriteFrame;
       }
-      return spriteFrames;
-    })
+      const atlas = new cc.SpriteAtlas();
+      atlas._spriteFrames = spriteFrames;
+      return atlas;
+    });
   };
 
   /**
@@ -83,8 +86,40 @@ if (cc && cc.loader) {
    * @param  {Function} ctor
    * @return {Object}
    */
-  const plistArrayToCcType = function plistArrayToCcType (plistArrayStr, ctor) {
+  const plistArrayToCcType = function plistArrayToCcType(plistArrayStr, ctor) {
     const ary = plistArrayStr.replace(/[^0-9,]/g, '').split(',').map(x => parseInt(x, 10));
     return new ctor(...ary);
-  }
+  };
+
+  /**
+   * Load dragon bones
+   */
+  loaderp.loadDragonBone = function ({skeUrl, texJsonUrl, texUrl, armatureName, animationName, play = true, times = 1}, node) {
+    return new Promise((resolve) => {
+      cc.loaderp.loadAll([
+        [{url: skeUrl, type: 'txt'}],
+        [{url: texJsonUrl, type: 'txt'}],
+        [{url: texUrl, type: 'png'}]
+      ]).then(([dragonBonesJson, atlasJson, texture]) => {
+        const atlas = new dragonBones.DragonBonesAtlasAsset();
+        atlas.atlasJson = atlasJson;
+        atlas.texture = texture;
+
+        const asset = new dragonBones.DragonBonesAsset();
+        asset.dragonBonesJson = dragonBonesJson;
+
+        if (node) {
+          const display = node.addComponent(dragonBones.ArmatureDisplay);
+          display.dragonAtlasAsset = atlas;
+          display.dragonAsset = asset;
+          display.armatureName = armatureName;
+          if (animationName) display.animationName = animationName;
+          if (play && times > 0) display.playAnimation(animationName, times);
+          resolve(display);
+        } else {
+          resolve([atlas, asset]);
+        }
+      });
+    });
+  };
 }
