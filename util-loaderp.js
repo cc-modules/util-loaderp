@@ -114,7 +114,7 @@ if (cc && cc.loader) {
           display.dragonAsset = asset;
           display.armatureName = armatureName;
           if (animationName) display.animationName = animationName;
-          if (play && times > 0) display.playAnimation(animationName, times);
+          if (play) display.playAnimation(animationName, times);
           resolve(display);
         } else {
           resolve([atlas, asset]);
