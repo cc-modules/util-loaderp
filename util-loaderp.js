@@ -116,7 +116,12 @@ if (cc && cc.loader) {
         asset.dragonBonesJson = dragonBonesJson;
 
         if (node) {
-          const display = node.addComponent(dragonBones.ArmatureDisplay);
+          let display = node.getComponent(dragonBones.ArmatureDisplay);
+          if (display) {
+            display.destroy();
+          } else {
+            display = node.addComponent(dragonBones.ArmatureDisplay);
+          }
           display.dragonAtlasAsset = atlas;
           display.dragonAsset = asset;
           display.armatureName = armatureName;
