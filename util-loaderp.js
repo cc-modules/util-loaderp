@@ -94,9 +94,16 @@ if (cc && cc.loader) {
   /**
    * Load dragon bones
    */
-  loaderp.loadDragonBone = function ({skeUrl, texJsonUrl, texUrl, armatureName, animationName, play = true, times = 1}, node) {
+  loaderp.loadDragonBone = (...args) => {
+    return loadDragonBone('loadAll', ...args);
+  };
+  loaderp.loadDragonBoneRes = (...args) => {
+    return loadDragonBone('loadResAll', ... args);
+  }
+
+  function loadDragonBone (method, {skeUrl, texJsonUrl, texUrl, armatureName, animationName, play = true, times = 1}, node) {
     return new Promise((resolve) => {
-      cc.loaderp.loadAll([
+      cc.loaderp[method]([
         [{url: skeUrl, type: 'txt'}],
         [{url: texJsonUrl, type: 'txt'}],
         [{url: texUrl, type: 'png'}]

@@ -91,5 +91,14 @@ declare namespace cc {
        */
       export function loadDragonBone(opts: IDragonBoneLoadOptions, node: cc.Node): Promise<dragonBones.ArmatureDisplay>;
       export function loadDragonBone(opts: IDragonBoneLoadOptions): Promise<[dragonBones.DragonBonesAtlasAsset,  dragonBones.DragonBonesAsset]>;
+      /**
+       * 从assets/resources加载龙骨资源并播放
+       *
+       * @export
+       * @param {*} {skeUrl, texJsonUrl, texUrl, armatureName, animationName, play = true, times = 1}
+       * @param {T} [node]
+       */
+      export function loadDragonBoneRes(opts: IDragonBoneLoadOptions, node: cc.Node): Promise<dragonBones.ArmatureDisplay>;
+      export function loadDragonBoneRes(opts: IDragonBoneLoadOptions): Promise<[dragonBones.DragonBonesAtlasAsset,  dragonBones.DragonBonesAsset]>;
   }
 }
