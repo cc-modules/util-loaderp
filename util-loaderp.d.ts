@@ -73,15 +73,21 @@ declare namespace cc {
        */
       export function loadAtlas(url: string, imageExt: string = '.png', plistExt: string = '.plist'): Promise<cc.SpriteAtlas>;
 
-      export interface IDragonBoneLoadOptions {
+      export interface IDragonBoneLoadFromResOptions {
           skeUrl: string;
           texJsonUrl: string;
-          texUrl: string;
-          armatureName: string;
-          animationName: string;
-          play?: boolean = true;
-          times?: number = 1;
       };
+      export interface IDragonBoneLoadFromRemoteOptions extends IDragonBoneLoadFromResOptions{
+        texUrl: string;
+      }
+      interface IDragonBonePlayOptions {
+        armatureName: string;
+        animationName: string;
+        play?: boolean = true;
+        times?: number = 1;
+      }
+      export interface IDragonBoneLoadAndPlayFromResOptions extends IDragonBoneLoadFromResOptions, IDragonBonePlayOptions {}
+      export interface IDragonBoneLoadAndPlayFromRemoteOptions extends IDragonBoneLoadFromRemoteOptions, IDragonBonePlayOptions {}
       /**
        * 加载龙骨资源并播放
        *
@@ -89,8 +95,8 @@ declare namespace cc {
        * @param {*} {skeUrl, texJsonUrl, texUrl, armatureName, animationName, play = true, times = 1}
        * @param {T} [node]
        */
-      export function loadDragonBone(opts: IDragonBoneLoadOptions, node: cc.Node): Promise<dragonBones.ArmatureDisplay>;
-      export function loadDragonBone(opts: IDragonBoneLoadOptions): Promise<[dragonBones.DragonBonesAtlasAsset,  dragonBones.DragonBonesAsset]>;
+      export function loadDragonBone(opts: IDragonBoneLoadAndPlayFromRemoteOptions, node: cc.Node): Promise<dragonBones.ArmatureDisplay>;
+      export function loadDragonBone(opts: IDragonBoneLoadFromRemoteOptions): Promise<[dragonBones.DragonBonesAtlasAsset,  dragonBones.DragonBonesAsset]>;
       /**
        * 从assets/resources加载龙骨资源并播放
        *
@@ -98,7 +104,7 @@ declare namespace cc {
        * @param {*} {skeUrl, texJsonUrl, texUrl, armatureName, animationName, play = true, times = 1}
        * @param {T} [node]
        */
-      export function loadDragonBoneRes(opts: IDragonBoneLoadOptions, node: cc.Node): Promise<dragonBones.ArmatureDisplay>;
-      export function loadDragonBoneRes(opts: IDragonBoneLoadOptions): Promise<[dragonBones.DragonBonesAtlasAsset,  dragonBones.DragonBonesAsset]>;
+      export function loadDragonBoneRes(opts: IDragonBoneLoadAndPlayFromResOptions, node: cc.Node): Promise<dragonBones.ArmatureDisplay>;
+      export function loadDragonBoneRes(opts: IDragonBoneLoadFromResOptions): Promise<[dragonBones.DragonBonesAtlasAsset,  dragonBones.DragonBonesAsset]>;
   }
 }

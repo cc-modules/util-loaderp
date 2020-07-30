@@ -91,19 +91,26 @@ if (cc && cc.loader) {
     return new ctor(...ary);
   };
 
-  /**
-   * Load dragon bones
-   */
-  loaderp.loadDragonBone = (...args) => {
-    return loadDragonBone('loadAll', ...args);
-  };
-  loaderp.loadDragonBoneRes = (...args) => {
-    return loadDragonBone('loadResAll', ... args);
+  function playDragonBoneAnimationOnNode(node, atlas, asset, armatureName, animationName, play, times) {
+    let display = node.getComponent(dragonBones.ArmatureDisplay);
+    if (display) {
+      display.destroy();
+    } else {
+      display = node.addComponent(dragonBones.ArmatureDisplay);
+    }
+    display.dragonAtlasAsset = atlas;
+    display.dragonAsset = asset;
+    display.armatureName = armatureName;
+    if (animationName) display.animationName = animationName;
+    if (play) display.playAnimation(animationName, times);
   }
 
-  function loadDragonBone (method, {skeUrl, texJsonUrl, texUrl, armatureName, animationName, play = true, times = 1}, node) {
-    return new Promise((resolve) => {
-      cc.loaderp[method]([
+  /**
+   * Load dragon bones from remote
+   */
+  loaderp.loadDragonBone = function ({skeUrl, texJsonUrl, texUrl, armatureName, animationName, play = true, times = 1}, node) {
+    return new Promise((resolve, reject) => {
+      cc.loaderp.loadAll([
         [{url: skeUrl, type: 'txt'}],
         [{url: texJsonUrl, type: 'txt'}],
         [{url: texUrl, type: 'png'}]
@@ -116,22 +123,35 @@ if (cc && cc.loader) {
         asset.dragonBonesJson = dragonBonesJson;
 
         if (node) {
-          let display = node.getComponent(dragonBones.ArmatureDisplay);
-          if (display) {
-            display.destroy();
-          } else {
-            display = node.addComponent(dragonBones.ArmatureDisplay);
-          }
-          display.dragonAtlasAsset = atlas;
-          display.dragonAsset = asset;
-          display.armatureName = armatureName;
-          if (animationName) display.animationName = animationName;
-          if (play) display.playAnimation(animationName, times);
+          playDragonBoneAnimationOnNode(node, atlas, asset, armatureName, animationName, play, times);
           resolve(display);
         } else {
           resolve([atlas, asset]);
         }
-      });
+      }).catch(reject);
     });
   };
+
+  /**
+   * Load dragon bones from assets/resources/skeletons
+   */
+  loaderp.loadDragonBoneRes = function ({skeUrl, texJsonUrl, armatureName, animationName, play = true, times = 1}, node) {
+    return new Promise((resolve, reject) => {
+      cc.loaderp.loadResAll([
+        [skeUrl, dragonBones.DragonBonesAsset],
+        [texJsonUrl, dragonBones.DragonBonesAtlasAsset],
+      ]).then(([asset, atlas]) => {
+        if (node) {
+          playDragonBoneAnimationOnNode(node, atlas, asset, armatureName, animationName, play, times);
+          resolve(display);
+        } else {
+          resolve([atlas, asset]);
+        }
+      }).catch(reject);
+    });
+  }
+
+  function loadDragonBone (method, ...args) {
+    return method === 'loadAll' ? loadDragonBone(...args) : loadDragonBoneRes(...args);
+  }
 }
