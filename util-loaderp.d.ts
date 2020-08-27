@@ -106,5 +106,23 @@ declare namespace cc {
        */
       export function loadDragonBoneRes(opts: IDragonBoneLoadAndPlayFromResOptions, node: cc.Node): Promise<dragonBones.ArmatureDisplay>;
       export function loadDragonBoneRes(opts: IDragonBoneLoadFromResOptions): Promise<[dragonBones.DragonBonesAtlasAsset,  dragonBones.DragonBonesAsset]>;
+      /**
+       * 加载Spine资源并播放
+       *
+       * @export
+       * @param {*} {skeUrl, texJsonUrl, texUrl, armatureName, animationName, play = true, times = 1}
+       * @param {T} [node]
+       */
+      export function loadSpine(opts: IDragonBoneLoadOptions, node: cc.Node): Promise<sp.Skeleton>;
+      export function loadSpine(opts: IDragonBoneLoadOptions): Promise<[sp.SkeletonData]>;
+      /**
+       * 从assets/resources加载Spine资源并播放
+       *
+       * @export
+       * @param {*} {skeUrl, texJsonUrl, texUrl, armatureName, animationName, play = true, times = 1}
+       * @param {T} [node]
+       */
+      export function loadSpineRes(opts: IDragonBoneLoadOptions, node: cc.Node): Promise<sp.Skeleton>;
+      export function loadSpineRes(opts: IDragonBoneLoadOptions): Promise<[sp.SkeletonData]>;
   }
 }

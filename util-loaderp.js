@@ -154,4 +154,91 @@ if (cc && cc.loader) {
   function loadDragonBone (method, ...args) {
     return method === 'loadAll' ? loadDragonBone(...args) : loadDragonBoneRes(...args);
   }
+
+
+  cc.loaderp.loadSpine = loadSpine;
+  cc.loaderp.loadSpineRes = loadSpineRes;
+
+  /**
+   * Load Spine resources from remote
+   *
+   * @param {*} {skeUrl, texJsonUrl, texUrl, armatureName, animationName, trackIndex = 0, play = true, times = 1}
+   * @param {*} node
+   * @returns
+   */
+  function loadSpine({skeUrl, texJsonUrl, texUrl, armatureName, animationName, trackIndex = 0, play = true, times = 1}, node) {
+    return new Promise((resolve, reject) => {
+      cc.loaderp.loadAll([
+        [{url: skeUrl, type: 'txt'}],
+        [{url: texJsonUrl, type: 'txt'}],
+        [{url: texUrl, type: 'png'}]
+      ]).then(([spineJson, atlasJson, texture]) => {
+        var asset = new sp.SkeletonData();
+        asset.skeletonJson = spineJson;
+        asset.atlasText = atlasJson;
+        asset.textures = [texture];
+        asset.textureNames = texUrl.split(/[/\\]/).slice(-1);
+        if (node) {
+          let ske = node.getComponent(sp.Skeleton);
+          if (ske) {
+            ske.destroy();
+          } else {
+            ske = node.addComponent(sp.Skeleton);
+          }
+          ske.skeletonData = asset;
+          ske.setSkin(armatureName);
+          if (play && animationName) {
+            doPlaySpineAnimation(ske, trackIndex, animationName, times);
+          }
+          resolve(ske);
+        } else {
+          resolve([asset])
+        }
+      }).catch(reject);
+    });
+  }
+
+  function doPlaySpineAnimation(ske, trackIndex, animationName, times) {
+    if (times >= 1) {
+      ske.setCompleteListener((trackEntry) => {
+        times -= 1;
+        let name = trackEntry.animation ? trackEntry.animation.name : '';
+        if (name === animationName && times > 0) {
+          ske.setAnimation(trackIndex, animationName, false);
+        } else {
+          ske.setCompleteListener();
+        }
+      });
+    }
+    ske.setAnimation(trackIndex, animationName, times < 0);
+  }
+
+  /**
+   * Load Spine resources from assets/resources/skeletons
+   *
+   * @param {*} {name, animationName, trackIndex = 0, play = true, times = 1}
+   * @param {*} node
+   * @returns
+   */
+  function loadSpineRes({name, animationName, trackIndex = 0, play = true, times = 1}, node) {
+    return new Promise((resolve, reject) => {
+      cc.loaderp.loadRes(name, sp.SkeletonData).then(data => {
+        if (node) {
+          let ske = node.getComponent(sp.Skeleton);
+          if (ske) {
+            ske.destroy();
+          } else {
+            ske = node.addComponent(sp.Skeleton);
+          }
+          ske.skeletonData = data;
+          if (play && animationName) {
+            doPlaySpineAnimation(ske, trackIndex, animationName, times);
+          }
+          resolve(ske);
+        } else {
+          resolve([atlas, asset])
+        }
+      }).catch(reject);
+    });
+  }
 }
